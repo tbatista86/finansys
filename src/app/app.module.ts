@@ -1,13 +1,15 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http'
+import { HttpClientInMemoryWebApiModule } from "angular-in-memory-web-api";
 
 import { AppRoutingModule } from './app-routing.module';
+import { RouterModule } from '@angular/router';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from './app.component';
 
-import { HttpClientInMemoryWebApiModule } from "angular-in-memory-web-api";
 import { InMemoryDatabase } from "./in-memory-database";
-import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http'
 
 @NgModule({
   declarations: [
@@ -17,6 +19,8 @@ import { HttpClientModule } from '@angular/common/http'
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
     RouterModule.forRoot([]),
     HttpClientInMemoryWebApiModule.forRoot(InMemoryDatabase)
   ],
