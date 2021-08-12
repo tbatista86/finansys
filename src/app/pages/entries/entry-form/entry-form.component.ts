@@ -10,6 +10,8 @@ import { Injectable } from '@angular/core';
 
 // import toastr from 'toastr';
 import { ToastrService } from 'ngx-toastr';
+import { Category } from '../../categories/shared/category.model';
+import { CategoryService } from '../../categories/shared/category.service';
 
 @Component({
   selector: 'app-entry-form',
@@ -27,19 +29,42 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   serverErrorMessages?: string[];
   submittingForm: boolean = false;
   entry: Entry = new Entry();
+  categories!: Array<Category>;
+
+  imaskConfig = {
+    mask: Number,
+    scale: 2,
+    thousandsSeparator: '',
+    padFractionalZeros: true,
+    normalizeZeros: true,
+    radix: ','
+  };
+
+  ptBR = {
+    firstDayOfWeek: 0,
+    dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+    dayNamesShort: ['Dom', 'Seg', 'Tet', 'Qua', 'Qui', 'Sex', 'Sab'],
+    dayNamesMin: ['Do', 'Se', 'Te', 'Qu', 'Qu', 'Se', 'Sa'],
+    monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+    monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+    today: 'Hoje',
+    clear: 'Limpar'
+  }
 
   constructor(
     private entryService: EntryService,
     private route: ActivatedRoute,
     private router: Router,
     private formBuilder: FormBuilder,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private categoryService: CategoryService
   ) { }
 
   ngOnInit(): void {
     this.setCurrentAction();
     this.buildEntryForm();
     this.loadEntry();
+    this.loadCategories();
   }
 
   ngAfterContentChecked() {
@@ -55,6 +80,17 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
     }
   }
 
+  get typeOptions():  Array<any> {
+    return Object.entries(Entry.types).map(
+      ([value, text]) => {
+       return {
+         text: text,
+         valeu: value
+       }
+      }
+    )
+  }
+
   // PRIVATE METHODS
   private setCurrentAction() {
     if (this.route.snapshot.url[0].path == "new")
@@ -68,10 +104,10 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
       id: [null],
       name: [null, Validators.compose([Validators.required, Validators.minLength(3)])],
       description: [null],
-      type: [null, Validators.compose([Validators.required])],
-      amoount: [null, Validators.compose([Validators.required])],
+      type: ["expense", Validators.compose([Validators.required])],
+      amount: [null, Validators.compose([Validators.required])],
       date: [null, Validators.compose([Validators.required])],
-      paid: [null, Validators.compose([Validators.required])],
+      paid: [true, Validators.compose([Validators.required])],
       categoryId: [null, Validators.compose([Validators.required])]
     })
   }
@@ -88,6 +124,12 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
       (error) => alert('Ocorreu um erro no servidor tente mais tarde.')
       )
     }
+  }
+
+  private loadCategories() {
+    this.categoryService.getAll().subscribe(
+      categories => this.categories = categories
+    );
   }
 
   private setPageTitle() {
@@ -137,5 +179,7 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
       this.serverErrorMessages = ["Falha na comunicação com o servidor, por favor tente mais tarde."];
     }
   }
+
+
 
 }
